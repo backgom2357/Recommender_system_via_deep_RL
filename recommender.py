@@ -95,8 +95,9 @@ class DRRAgent:
                 items_ids = next_items_ids
                 episode_reward += reward
                 
-                print(f'recommended items : {len(self.env.recommended_items)}, items_ids : {items_ids}, reward : {reward}', end='\r')
-                
+                print(f'recommended items : {len(self.env.recommended_items)}, reward : {reward}', end='\r')
+            
+            print()
             print(f'{episode}/{max_episode_num} {(episode/max_episode_num)*100:2.1f}, reward:{episode_reward:+}')
             episodic_reward_history.append(episode_reward)
         
