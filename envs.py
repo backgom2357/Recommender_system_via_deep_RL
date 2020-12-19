@@ -13,9 +13,10 @@ class OfflineEnv(object):
         
         self.user = user_id if user_id else np.random.choice(self.available_users)
         self.user_items = {data[0]:data[1] for data in self.users_dict[self.user]}
-        self.state = [data[0] for data in self.users_dict[self.user][:self.state_size]]
+        self.items = [data[0] for data in self.users_dict[self.user][:self.state_size]]
         self.done = False
-        self.recommended_items = set(self.state)
+        self.recommended_items = set(self.items)
+        self.done_count = 3000
         
     def _generate_available_users(self):
         available_users = []
@@ -26,23 +27,25 @@ class OfflineEnv(object):
     
     def reset(self, user_id=None):
         self.user = user_id if user_id else np.random.choice(self.available_users)
-        self.state = [data[0] for data in self.users_dict[self.user][:self.state_size]]
+        self.user_items = {data[0]:data[1] for data in self.users_dict[self.user]}
+        self.items = [data[0] for data in self.users_dict[self.user][:self.state_size]]
         self.done = False
-        self.recommended_items = set(self.state)
+        self.recommended_items = set(self.items)
+        return self.user, self.items, self.done
         
     def step(self, action):
 
         reward = 0
         
         if action in self.user_items.keys() and action not in self.recommended_items:
-            reward = self.user_items[action] - 2  # reward function
+            reward = self.user_items[action] - 2  # reward
             del self.user_items[action]
         
         if reward > 0:
-            self.state = self.state[1:] + [action]
+            self.items = self.items[1:] + [action]
         
         self.recommended_items.add(action)
-        if self.user_items == {}:
-            self.done == True
+        if self.user_items == {} or len(self.recommended_items) > self.done_count:
+            self.done = True
         
-        return self.state, reward, self.done, self.recommended_items
+        return self.items, reward, self.done, self.recommended_items
