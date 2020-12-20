@@ -4,6 +4,7 @@ import numpy as np
 import tensorflow as tf
 import itertools
 import matplotlib.pyplot as plt
+import time
 
 from envs import OfflineEnv
 from recommender import DRRAgent
@@ -12,11 +13,11 @@ import os
 ROOT_DIR = os.getcwd()
 DATA_DIR = os.path.join(ROOT_DIR, 'ml-1m/')
 STATE_SIZE = 10
-MAX_EPISODE_NUM = 5
+MAX_EPISODE_NUM = 7000
 
 if __name__ == "__main__":
 
-    print('Data proprocessing...')
+    print('Data loading...')
 
     #Loading datasets
     ratings_list = [i.strip().split("::") for i in open(os.path.join(DATA_DIR,'ratings.dat'), 'r').readlines()]
@@ -27,6 +28,7 @@ if __name__ == "__main__":
     movies_df['MovieID'] = movies_df['MovieID'].apply(pd.to_numeric)
 
     print("Data loading complete!")
+    print("Data preprocessing...")
 
     # 영화 id를 영화 제목으로
     movies_id_to_movies = {movie[0]: movie[1:] for movie in movies_list}
@@ -46,11 +48,12 @@ if __name__ == "__main__":
     # 각 유저별 영화 히스토리 길이
     users_history_lens = [len(users_dict[u]) for u in set(ratings_df["UserID"])]
 
-    users_num = max(ratings_df["UserID"])
-    items_num = max(ratings_df["MovieID"])
+    users_num = max(ratings_df["UserID"])+1
+    items_num = max(ratings_df["MovieID"])+1
     print('DONE!')
+    time.sleep(2)
 
-    env = OfflineEnv(users_dict, users_history_lens, movies_id_to_movies, 10, user_id=None)
+    env = OfflineEnv(users_dict, users_history_lens, movies_id_to_movies, STATE_SIZE, fix_user_id=2279)
     recommender = DRRAgent(env, users_num, items_num, STATE_SIZE)
     recommender.actor.build_networks()
     recommender.critic.build_networks()

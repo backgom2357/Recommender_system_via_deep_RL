@@ -48,10 +48,11 @@ class DRRAgent:
         for episode in range(max_episode_num):
             # episodic reward 리셋
             episode_reward = 0
+            correct_count = 0
             # Environment 리셋
             user_id, items_ids, done = self.env.reset()
-            print('user_id : ', user_id)
-            print('items_ids : ', items_ids)
+            print(f'user_id : {user_id}, rated_items_length:{len(self.env.user_items)}')
+            print('items : ', self.env.get_items_names(items_ids))
             while not done:
                 
                 # Observe current state & Find action
@@ -94,15 +95,21 @@ class DRRAgent:
 
                 items_ids = next_items_ids
                 episode_reward += reward
+
+                if reward > 0:
+                    correct_count += 1
                 
                 print(f'recommended items : {len(self.env.recommended_items)}, reward : {reward:+}', end='\r')
-            
-            print()
-            print(f'{episode}/{max_episode_num} {(episode/max_episode_num)*100:2.1f}, reward:{episode_reward:+}')
-            episodic_reward_history.append(episode_reward)
-        
-        plt.plot(episodic_reward_history)
-        plt.savefig('episodic_reward_history')
+
+                if done:
+                    print()
+                    precision = int(correct_count/len(self.env.recommended_items) * 100)
+                    print(f'{episode}/{max_episode_num}, precision : {precision:2}%, total_reward:{episode_reward}')
+                    episodic_reward_history.append(episode_reward)
+
+            if (episode+1)%50 == 0:
+                plt.plot(episodic_reward_history)
+                plt.savefig(f'episodic_reward_history_{episode+1}')
 
     def save_model(self, actor_path, critic_path):
         self.actor.save_weights(actor_path)
