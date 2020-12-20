@@ -12,7 +12,7 @@ import os
 ROOT_DIR = os.getcwd()
 DATA_DIR = os.path.join(ROOT_DIR, 'ml-1m/')
 STATE_SIZE = 10
-MAX_EPISODE_NUM = 100
+MAX_EPISODE_NUM = 5
 
 if __name__ == "__main__":
 
@@ -44,13 +44,13 @@ if __name__ == "__main__":
         users_dict[data[1]['UserID']].append((data[1]['MovieID'], data[1]['Rating']))
 
     # 각 유저별 영화 히스토리 길이
-    users_history_len = [len(users_dict[u]) for u in set(ratings_df["UserID"])]
+    users_history_lens = [len(users_dict[u]) for u in set(ratings_df["UserID"])]
 
     users_num = max(ratings_df["UserID"])
     items_num = max(ratings_df["MovieID"])
     print('DONE!')
 
-    env = OfflineEnv(users_dict, users_history_len, movies_id_to_movies, 10, user_id=None)
+    env = OfflineEnv(users_dict, users_history_lens, movies_id_to_movies, 10, user_id=None)
     recommender = DRRAgent(env, users_num, items_num, STATE_SIZE)
     recommender.actor.build_networks()
     recommender.critic.build_networks()

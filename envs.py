@@ -2,10 +2,10 @@ import numpy as np
 
 class OfflineEnv(object):
     
-    def __init__(self, users_dict, users_history_len, movies_id_to_movies, state_size, user_id=None):
+    def __init__(self, users_dict, users_history_lens, movies_id_to_movies, state_size, user_id=None):
         
         self.users_dict = users_dict
-        self.users_history_len = users_history_len
+        self.users_history_lens = users_history_lens
         self.items_id_to_name = movies_id_to_movies
         
         self.state_size = state_size
@@ -20,7 +20,7 @@ class OfflineEnv(object):
         
     def _generate_available_users(self):
         available_users = []
-        for i, length in enumerate(self.users_history_len):
+        for i, length in enumerate(self.users_history_lens):
             if length > self.state_size:
                 available_users.append(i+1)
         return available_users
@@ -45,7 +45,7 @@ class OfflineEnv(object):
             self.items = self.items[1:] + [action]
         
         self.recommended_items.add(action)
-        if self.user_items == {} or len(self.recommended_items) > self.done_count:
+        if self.user_items == {} or len(self.recommended_items) > self.done_count or len(self.recommended_items) >= self.users_history_lens[self.user-1]:
             self.done = True
         
         return self.items, reward, self.done, self.recommended_items
