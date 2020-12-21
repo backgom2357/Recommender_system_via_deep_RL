@@ -16,15 +16,15 @@ class DRRAgent:
         self.users_num = users_num
         self.items_num = items_num
         
-        self.embedding_dim = 16
-        self.actor_hidden_dim = 32
+        self.embedding_dim = 100
+        self.actor_hidden_dim = 128
         self.actor_learning_rate = 0.001
-        self.critic_hidden_dim = 32
+        self.critic_hidden_dim = 128
         self.critic_learning_rate = 0.001
         self.discount_factor = 0.9
         self.tau = 0.001
 
-        self.replay_memory_size = 5000
+        self.replay_memory_size = 1000000
         self.batch_size = 32
         
         self.actor = Actor(users_num, items_num, self.embedding_dim, self.actor_hidden_dim, self.actor_learning_rate, state_size, self.tau)
@@ -65,7 +65,7 @@ class DRRAgent:
                 ## Action(ranking score) 출력
                 action, _ = self.actor.network(user_eb, items_eb)
                 ## Item 추천
-                recommended_item = self.actor.recommend_item(action)
+                recommended_item = self.actor.recommend_item(action, self.env.recommended_items)
                 
                 # Calculate reward & observe new state (in env)
                 ## Step
@@ -109,7 +109,10 @@ class DRRAgent:
 
             if (episode+1)%50 == 0:
                 plt.plot(episodic_reward_history)
-                plt.savefig(f'episodic_reward_history_{episode+1}')
+                plt.savefig(f'episodic_reward_history')
+
+            if (episode+1)%100 == 0:
+                self.save_model(f'/home/ubuntu/DRR/save_weights/actor_{episode+1}.h5', f'/home/ubuntu/DRR/save_weights/critic_{episode+1}.h5')
 
     def save_model(self, actor_path, critic_path):
         self.actor.save_weights(actor_path)
