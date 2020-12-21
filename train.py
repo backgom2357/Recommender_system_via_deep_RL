@@ -15,6 +15,8 @@ DATA_DIR = os.path.join(ROOT_DIR, 'ml-1m/')
 STATE_SIZE = 10
 MAX_EPISODE_NUM = 7000
 
+os.environ["CUDA_VISIBLE_DEVICES"]="1"
+
 if __name__ == "__main__":
 
     print('Data loading...')
@@ -53,7 +55,7 @@ if __name__ == "__main__":
     print('DONE!')
     time.sleep(2)
 
-    env = OfflineEnv(users_dict, users_history_lens, movies_id_to_movies, STATE_SIZE, fix_user_id=2279)
+    env = OfflineEnv(users_dict, users_history_lens, movies_id_to_movies, STATE_SIZE, fix_user_id=1)
     recommender = DRRAgent(env, users_num, items_num, STATE_SIZE)
     recommender.actor.build_networks()
     recommender.critic.build_networks()
