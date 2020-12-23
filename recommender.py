@@ -38,10 +38,14 @@ class DRRAgent:
             y_t[i] = rewards[i] + (1 - dones[i])*(self.discount_factor * q_values[i])
         return y_t
         
-    def train(self, max_episode_num):
+    def train(self, max_episode_num, load_model=False):
         # 타겟 네트워크들 초기화
         self.actor.update_target_network()
         self.critic.update_target_network()
+
+        if load_model:
+            self.load_model("/home/ubuntu/DRR/save_weights/actor_7000.h5", "/home/ubuntu/DRR/save_weights/critic_7000.h5")
+            print('Completely load weights!')
 
         episodic_precision_history = []
 

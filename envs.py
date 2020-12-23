@@ -35,20 +35,32 @@ class OfflineEnv(object):
         self.recommended_items = set(self.items)
         return self.user, self.items, self.done
         
-    def step(self, action):
+    def step(self, action, top_k=False):
 
         reward = -1
         
-        if action in self.user_items.keys() and action not in self.recommended_items:
-            reward = self.user_items[action] - 3  # reward
-        
-        if reward > 0:
-            self.items = self.items[1:] + [action]
-        
-        self.recommended_items.add(action)
+        if top_k:
+            correctly_recommended = []
+            rewards = [-1]
+            for act in action:
+                if act in self.user_items.keys() and act not in self.recommended_items:
+                    correctly_recommended.append(act)
+                    rewards.append(self.user_items[act] - 3)
+                    self.recommended_items.add(act)
+            if max(rewards) > 0:
+                self.items = self.items[len(action):] + action
+                reward = max(rewards)
+
+        else:
+            if action in self.user_items.keys() and action not in self.recommended_items:
+                reward = self.user_items[action] - 3  # reward
+            if reward > 0:
+                self.items = self.items[1:] + [action]
+            self.recommended_items.add(action)
+
         if len(self.recommended_items) > self.done_count or len(self.recommended_items) >= len(self.users_dict[self.user]):
             self.done = True
-        
+            
         return self.items, reward, self.done, self.recommended_items
 
     def get_items_names(self, items_ids):
