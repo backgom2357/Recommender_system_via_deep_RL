@@ -81,19 +81,19 @@ class Actor(object):
         self.target_network(np.zeros((1,1,self.embedding_dim)),np.zeros((1,self.state_size,self.embedding_dim)))
         
 
-    def recommend_item(self, action, recommended_items, top_k=False, items_ids=None):
+    def recommend_item(self, action, recommended_items, top_k=False, items_ids=None, is_test=False):
         if items_ids == None:
             items_ids = np.array(list(set(i for i in range(self.items_num)) - recommended_items))
         
         # ε-greedy exploration
-        if self.epsilon > np.random.uniform():
+        if self.epsilon > np.random.uniform() and not is_test:
             self.epsilon -= self.epsilon_decay
             return np.random.choice(items_ids)
 
         items_ebs = self.embedding_network.get_item_eb(items_ids)
         action = tf.transpose(action, perm=(1,0))
         if top_k:
-            item_indice = np.argsort(tf.keras.backend.dot(items_ebs, action))[-top_k:]
+            item_indice = np.argsort(tf.transpose(tf.keras.backend.dot(items_ebs, action), perm=(1,0)))[0][-top_k:]
             return items_ids[item_indice]
         else:    
             item_idx = np.argmax(tf.keras.backend.dot(items_ebs, action))

@@ -46,9 +46,9 @@ class OfflineEnv(object):
                 if act in self.user_items.keys() and act not in self.recommended_items:
                     correctly_recommended.append(act)
                     rewards.append(self.user_items[act] - 3)
-                    self.recommended_items.add(act)
+                self.recommended_items.add(act)
             if max(rewards) > 0:
-                self.items = self.items[len(action):] + action
+                self.items = self.items[len(correctly_recommended):] + correctly_recommended
                 reward = max(rewards)
 
         else:
@@ -66,5 +66,8 @@ class OfflineEnv(object):
     def get_items_names(self, items_ids):
         items_names = []
         for id in items_ids:
-            items_names.append(self.items_id_to_name[str(id)])
+            try:
+                items_names.append(self.items_id_to_name[str(id)])
+            except:
+                items_names.append(list(['Not in list']))
         return items_names
