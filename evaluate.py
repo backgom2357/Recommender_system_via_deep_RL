@@ -15,19 +15,20 @@ ROOT_DIR = os.getcwd()
 DATA_DIR = os.path.join(ROOT_DIR, 'ml-1m/')
 STATE_SIZE = 10
 
-def evaluate(recommender, env, recommend_times, top_k=False):
+def evaluate(recommender, env, top_k=False):
 
-        recommender.load_model('/home/diominor/Workspace/DRR/save_weights/actor_4500.h5', '/home/diominor/Workspace/DRR/save_weights/critic_4500.h5')
+        recommender.load_model('/home/diominor/Workspace/DRR/save_weights/actor_7000.h5', '/home/diominor/Workspace/DRR/save_weights/critic_7000.h5')
 
         # episodic reward 리셋
         episode_reward = 0
         correct_count = 0
+        steps = 0
         # Environment 리셋
-        user_id, items_ids, _ = env.reset()
+        user_id, items_ids, done = env.reset()
         print(f'user_id : {user_id}, rated_items_length:{len(env.user_items)}')
-        print('items : \n', env.get_items_names(items_ids))
+        print('items : \n', np.array(env.get_items_names(items_ids)))
         
-        for _ in range(recommend_times):
+        while not done:
             
             # Observe current state & Find action
             ## Embedding 해주기
@@ -39,18 +40,22 @@ def evaluate(recommender, env, recommend_times, top_k=False):
             ## Action(ranking score) 출력
             action, _ = recommender.actor.network(user_eb, items_eb)
             ## Item 추천
-            recommended_item = recommender.actor.recommend_item(action, env.recommended_items, top_k=top_k)
+            recommended_item = recommender.actor.recommend_item(action, env.recommended_items, top_k=top_k, is_test=True)
+            print(f'recommended items ids : {recommended_item}')
+            print(f'recommened items : \n {np.array(env.get_items_names(recommended_item), dtype=object)}')
             # Calculate reward & observe new state (in env)
             ## Step
-            next_items_ids, reward, _, _ = env.step(recommended_item, top_k=top_k)
+            next_items_ids, reward, done, _ = env.step(recommended_item, top_k=top_k)
             items_ids = next_items_ids
             episode_reward += reward
-
+            steps += 1
             if reward > 0:
                 correct_count += 1
+                print('GOT IT!!!!')
+            print()  
 
-        print(f'precision : {correct_count/recommend_times}, episode_reward : {episode_reward}')
-        print(f'recommened items : \n {env.get_items_names(items_ids)}')
+        print(f'precision : {correct_count/steps}, episode_reward : {episode_reward}')
+        print()
 
 if __name__ == "__main__":
 
