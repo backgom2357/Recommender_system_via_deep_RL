@@ -72,7 +72,7 @@ class Actor(object):
         self.tau = tau
         # ε-탐욕 탐색 하이퍼파라미터 ε-greedy exploration hyperparameter
         self.epsilon = 1.
-        self.epsilon_decay = (self.epsilon - 0.05)/1000000
+        self.epsilon_decay = (self.epsilon - 0.1)/1000000
     
     def build_networks(self):
         # 네트워크들 빌딩 / Build networks
@@ -88,6 +88,8 @@ class Actor(object):
         # ε-greedy exploration
         if self.epsilon > np.random.uniform() and not is_test:
             self.epsilon -= self.epsilon_decay
+            if top_k:
+                return np.random.choice(items_ids, top_k)
             return np.random.choice(items_ids)
 
         items_ebs = self.embedding_network.get_item_eb(items_ids)

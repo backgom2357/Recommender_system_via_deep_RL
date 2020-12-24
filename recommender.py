@@ -38,7 +38,7 @@ class DRRAgent:
             y_t[i] = rewards[i] + (1 - dones[i])*(self.discount_factor * q_values[i])
         return y_t
         
-    def train(self, max_episode_num, load_model=False):
+    def train(self, max_episode_num, top_k=False, load_model=False):
         # 타겟 네트워크들 초기화
         self.actor.update_target_network()
         self.critic.update_target_network()
@@ -53,6 +53,7 @@ class DRRAgent:
             # episodic reward 리셋
             episode_reward = 0
             correct_count = 0
+            steps = 0
             # Environment 리셋
             user_id, items_ids, done = self.env.reset()
             print(f'user_id : {user_id}, rated_items_length:{len(self.env.user_items)}')
@@ -69,11 +70,11 @@ class DRRAgent:
                 ## Action(ranking score) 출력
                 action, _ = self.actor.network(user_eb, items_eb)
                 ## Item 추천
-                recommended_item = self.actor.recommend_item(action, self.env.recommended_items)
+                recommended_item = self.actor.recommend_item(action, self.env.recommended_items, top_k=top_k)
                 
                 # Calculate reward & observe new state (in env)
                 ## Step
-                next_items_ids, reward, done, _ = self.env.step(recommended_item)
+                next_items_ids, reward, done, _ = self.env.step(recommended_item, top_k=top_k)
 
                # buffer에 저장
                 self.buffer.append(user_id, items_ids, action, reward, next_items_ids, done)
@@ -99,6 +100,7 @@ class DRRAgent:
 
                 items_ids = next_items_ids
                 episode_reward += reward
+                steps += 1
 
                 if reward > 0:
                     correct_count += 1
@@ -107,7 +109,7 @@ class DRRAgent:
 
                 if done:
                     print()
-                    precision = int(correct_count/len(self.env.recommended_items) * 100)
+                    precision = int(correct_count/steps * 100)
                     print(f'{episode}/{max_episode_num}, precision : {precision:2}%, total_reward:{episode_reward}')
                     episodic_precision_history.append(precision)
              
@@ -115,7 +117,7 @@ class DRRAgent:
                 plt.plot(episodic_precision_history)
                 plt.savefig(f'episodic_reward_history')
 
-            if (episode+1)%100 == 0:
+            if (episode+1)%1000 == 0:
                 self.save_model(f'/home/ubuntu/DRR/save_weights/actor_{episode+1}.h5', f'/home/ubuntu/DRR/save_weights/critic_{episode+1}.h5')
 
     def save_model(self, actor_path, critic_path):

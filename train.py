@@ -13,7 +13,7 @@ import os
 ROOT_DIR = os.getcwd()
 DATA_DIR = os.path.join(ROOT_DIR, 'ml-1m/')
 STATE_SIZE = 10
-MAX_EPISODE_NUM = 7000
+MAX_EPISODE_NUM = 50000
 
 # os.environ["CUDA_VISIBLE_DEVICES"]="1"
 
@@ -59,4 +59,4 @@ if __name__ == "__main__":
     recommender = DRRAgent(env, users_num, items_num, STATE_SIZE)
     recommender.actor.build_networks()
     recommender.critic.build_networks()
-    recommender.train(MAX_EPISODE_NUM, load_model=True)
+    recommender.train(MAX_EPISODE_NUM, top_k=5, load_model=True)
