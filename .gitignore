@@ -6,3 +6,5 @@ ml-1m/
 .ipynb_checkpoints/
 
 __pycache__/
+
+*.zip
