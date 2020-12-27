@@ -7,9 +7,11 @@ from replay_memory import ReplayMemory
 
 import matplotlib.pyplot as plt
 
+import wandb
+
 class DRRAgent:
     
-    def __init__(self, env, users_num, items_num, state_size, wandb=False):
+    def __init__(self, env, users_num, items_num, state_size, use_wandb=False):
         
         self.env = env
 
@@ -33,13 +35,12 @@ class DRRAgent:
         self.buffer = ReplayMemory(self.replay_memory_size, self.embedding_dim, state_size)
 
         # wandb
-        if wandb:
-            
-            import wandb
+        if use_wandb:
 
             wandb.init(project="drr", 
             config={'users_num':users_num,
             'items_num' : items_num,
+            'state_size' : state_size,
             'embedding_dim' : self.embedding_dim,
             'actor_hidden_dim' : self.actor_hidden_dim,
             'actor_learning_rate' : self.actor_learning_rate,
@@ -129,7 +130,7 @@ class DRRAgent:
                     print()
                     precision = int(correct_count/steps * 100)
                     # print(f'{episode}/{max_episode_num}, precision : {precision:2}%, total_reward:{episode_reward}')
-                    if wandb:
+                    if use_wandb:
                         wandb.log({'precision':precision, 'total_reward':episode_reward})
                     episodic_precision_history.append(precision)
              
