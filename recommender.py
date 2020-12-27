@@ -12,7 +12,7 @@ import wandb
 
 class DRRAgent:
     
-    def __init__(self, env, users_num, items_num, state_size):
+    def __init__(self, env, users_num, items_num, state_size, wandb=False):
         
         self.env = env
 
@@ -34,19 +34,20 @@ class DRRAgent:
         self.critic = Critic(self.critic_hidden_dim, self.critic_learning_rate, self.embedding_dim, self.tau)
         
         self.buffer = ReplayMemory(self.replay_memory_size, self.embedding_dim, state_size)
-    
-        wandb.init(project="drr", 
-        config={'users_num':users_num,
-        'items_num' : items_num,
-        'embedding_dim' : self.embedding_dim,
-        'actor_hidden_dim' : self.actor_hidden_dim,
-        'actor_learning_rate' : self.actor_learning_rate,
-        'critic_hidden_dim' : self.critic_hidden_dim,
-        'critic_learning_rate' : self.critic_learning_rate,
-        'discount_factor' : self.discount_factor,
-        'tau' : self.tau,
-        'replay_memory_size' : self.replay_memory_size,
-        'batch_size' : self.batch_size})
+
+        if wandb:
+            wandb.init(project="drr", 
+            config={'users_num':users_num,
+            'items_num' : items_num,
+            'embedding_dim' : self.embedding_dim,
+            'actor_hidden_dim' : self.actor_hidden_dim,
+            'actor_learning_rate' : self.actor_learning_rate,
+            'critic_hidden_dim' : self.critic_hidden_dim,
+            'critic_learning_rate' : self.critic_learning_rate,
+            'discount_factor' : self.discount_factor,
+            'tau' : self.tau,
+            'replay_memory_size' : self.replay_memory_size,
+            'batch_size' : self.batch_size})
 
     def calculate_td_target(self, rewards, q_values, dones):
         y_t = np.copy(q_values)
@@ -127,7 +128,8 @@ class DRRAgent:
                     print()
                     precision = int(correct_count/steps * 100)
                     # print(f'{episode}/{max_episode_num}, precision : {precision:2}%, total_reward:{episode_reward}')
-                    wandb.log({'precision':precision, 'total_reward':episode_reward})
+                    if wandb:
+                        wandb.log({'precision':precision, 'total_reward':episode_reward})
                     episodic_precision_history.append(precision)
              
             if (episode+1)%50 == 0:
