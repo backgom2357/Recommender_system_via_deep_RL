@@ -22,9 +22,9 @@ class OfflineEnv(object):
         
     def _generate_available_users(self):
         available_users = []
-        for i, length in enumerate(self.users_history_lens):
+        for i, length in zip(self.users_dict.keys(), self.users_history_lens):
             if length > self.state_size:
-                available_users.append(i+1)
+                available_users.append(i)
         return available_users
     
     def reset(self):

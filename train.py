@@ -13,7 +13,7 @@ import os
 ROOT_DIR = os.getcwd()
 DATA_DIR = os.path.join(ROOT_DIR, 'ml-1m/')
 STATE_SIZE = 10
-MAX_EPISODE_NUM = 50000
+MAX_EPISODE_NUM = 1000000
 
 # os.environ["CUDA_VISIBLE_DEVICES"]="1"
 
@@ -52,10 +52,17 @@ if __name__ == "__main__":
 
     users_num = max(ratings_df["UserID"])+1
     items_num = max(ratings_df["MovieID"])+1
+
+    # Training setting
+    train_users_num = int(users_num * 0.8)
+    train_items_num = items_num
+    train_users_dict = {k:users_dict[k] for k in range(1, train_users_num+1)}
+    train_users_history_lens = users_history_lens[:train_users_num]
+    
     print('DONE!')
     time.sleep(2)
 
-    env = OfflineEnv(users_dict, users_history_lens, movies_id_to_movies, STATE_SIZE, fix_user_id=None)
+    env = OfflineEnv(train_users_dict, train_users_history_lens, movies_id_to_movies, STATE_SIZE, fix_user_id=None)
     recommender = DRRAgent(env, users_num, items_num, STATE_SIZE)
     recommender.actor.build_networks()
     recommender.critic.build_networks()

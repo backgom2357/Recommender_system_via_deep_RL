@@ -7,6 +7,9 @@ from replay_memory import ReplayMemory
 
 import matplotlib.pyplot as plt
 
+# wandb
+import wandb
+
 class DRRAgent:
     
     def __init__(self, env, users_num, items_num, state_size):
@@ -32,6 +35,19 @@ class DRRAgent:
         
         self.buffer = ReplayMemory(self.replay_memory_size, self.embedding_dim, state_size)
     
+        wandb.init(project="drr", 
+        config={'users_num':users_num,
+        'items_num' : items_num,
+        'embedding_dim' : self.embedding_dim,
+        'actor_hidden_dim' : self.actor_hidden_dim,
+        'actor_learning_rate' : self.actor_learning_rate,
+        'critic_hidden_dim' : self.critic_hidden_dim,
+        'critic_learning_rate' : self.critic_learning_rate,
+        'discount_factor' : self.discount_factor,
+        'tau' : self.tau,
+        'replay_memory_size' : self.replay_memory_size,
+        'batch_size' : self.batch_size})
+
     def calculate_td_target(self, rewards, q_values, dones):
         y_t = np.copy(q_values)
         for i in range(q_values.shape[0]):
@@ -56,8 +72,8 @@ class DRRAgent:
             steps = 0
             # Environment 리셋
             user_id, items_ids, done = self.env.reset()
-            print(f'user_id : {user_id}, rated_items_length:{len(self.env.user_items)}')
-            print('items : ', self.env.get_items_names(items_ids))
+            # print(f'user_id : {user_id}, rated_items_length:{len(self.env.user_items)}')
+            # print('items : ', self.env.get_items_names(items_ids))
             while not done:
                 
                 # Observe current state & Find action
@@ -110,12 +126,13 @@ class DRRAgent:
                 if done:
                     print()
                     precision = int(correct_count/steps * 100)
-                    print(f'{episode}/{max_episode_num}, precision : {precision:2}%, total_reward:{episode_reward}')
+                    # print(f'{episode}/{max_episode_num}, precision : {precision:2}%, total_reward:{episode_reward}')
+                    wandb.log({'precision':precision, 'total_reward':episode_reward})
                     episodic_precision_history.append(precision)
              
             if (episode+1)%50 == 0:
                 plt.plot(episodic_precision_history)
-                plt.savefig(f'/home/ubuntu/DRR/images/precision_%_top_5.png')
+                plt.savefig(f'/home/ubuntu/DRR/images/training_precision_%_top_5.png')
 
             if (episode+1)%1000 == 0:
                 self.save_model(f'/home/ubuntu/DRR/save_weights/actor_{episode+1}.h5', f'/home/ubuntu/DRR/save_weights/critic_{episode+1}.h5')

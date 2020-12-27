@@ -17,7 +17,7 @@ STATE_SIZE = 10
 
 def evaluate(recommender, env, top_k=False):
 
-        recommender.load_model('/home/diominor/Workspace/DRR/save_weights/actor_7000.h5', '/home/diominor/Workspace/DRR/save_weights/critic_7000.h5')
+        recommender.load_model('/home/diominor/Workspace/DRR/save_weights/actor_50000.h5', '/home/diominor/Workspace/DRR/save_weights/critic_50000.h5')
 
         # episodic reward 리셋
         episode_reward = 0
@@ -92,10 +92,17 @@ if __name__ == "__main__":
 
     users_num = max(ratings_df["UserID"])+1
     items_num = max(ratings_df["MovieID"])+1
+
+    # Evaluating setting
+    eval_users_num = int(users_num * 0.2)
+    eval_items_num = items_num
+    eval_users_dict = {k:users_dict[k] for k in range(users_num-eval_users_num, users_num)}
+    eval_users_history_lens = users_history_lens[-eval_users_num:]
+
     print('DONE!')
     time.sleep(2)
 
-    env = OfflineEnv(users_dict, users_history_lens, movies_id_to_movies, STATE_SIZE)
+    env = OfflineEnv(eval_users_dict, eval_users_history_lens, movies_id_to_movies, STATE_SIZE)
     recommender = DRRAgent(env, users_num, items_num, STATE_SIZE)
     recommender.actor.build_networks()
     recommender.critic.build_networks()
