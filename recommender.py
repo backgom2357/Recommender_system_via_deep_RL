@@ -44,7 +44,7 @@ class DRRAgent:
         self.critic.update_target_network()
 
         if load_model:
-            self.load_model("/home/ubuntu/DRR/save_weights/actor_7000.h5", "/home/ubuntu/DRR/save_weights/critic_7000.h5")
+            self.load_model("/home/ubuntu/DRR/save_weights/actor_50000.h5", "/home/ubuntu/DRR/save_weights/critic_50000.h5")
             print('Completely load weights!')
 
         episodic_precision_history = []
@@ -115,7 +115,7 @@ class DRRAgent:
              
             if (episode+1)%50 == 0:
                 plt.plot(episodic_precision_history)
-                plt.savefig(f'episodic_reward_history')
+                plt.savefig(f'/home/ubuntu/DRR/images/precision_%_top_5.png')
 
             if (episode+1)%1000 == 0:
                 self.save_model(f'/home/ubuntu/DRR/save_weights/actor_{episode+1}.h5', f'/home/ubuntu/DRR/save_weights/critic_{episode+1}.h5')
