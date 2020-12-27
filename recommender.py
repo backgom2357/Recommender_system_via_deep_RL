@@ -35,6 +35,7 @@ class DRRAgent:
         self.buffer = ReplayMemory(self.replay_memory_size, self.embedding_dim, state_size)
 
         # wandb
+        self.use_wandb = use_wandb
         if use_wandb:
 
             wandb.init(project="drr", 
@@ -130,7 +131,7 @@ class DRRAgent:
                     print()
                     precision = int(correct_count/steps * 100)
                     # print(f'{episode}/{max_episode_num}, precision : {precision:2}%, total_reward:{episode_reward}')
-                    if use_wandb:
+                    if self.use_wandb:
                         wandb.log({'precision':precision, 'total_reward':episode_reward})
                     episodic_precision_history.append(precision)
              

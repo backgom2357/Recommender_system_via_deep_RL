@@ -66,4 +66,4 @@ if __name__ == "__main__":
     recommender = DRRAgent(env, users_num, items_num, STATE_SIZE)
     recommender.actor.build_networks()
     recommender.critic.build_networks()
-    recommender.train(MAX_EPISODE_NUM, load_model=True, use_wandb=True)
+    recommender.train(MAX_EPISODE_NUM, load_model=False, use_wandb=True)
