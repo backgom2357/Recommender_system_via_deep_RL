@@ -7,9 +7,6 @@ from replay_memory import ReplayMemory
 
 import matplotlib.pyplot as plt
 
-# wandb
-import wandb
-
 class DRRAgent:
     
     def __init__(self, env, users_num, items_num, state_size, wandb=False):
@@ -35,7 +32,11 @@ class DRRAgent:
         
         self.buffer = ReplayMemory(self.replay_memory_size, self.embedding_dim, state_size)
 
+        # wandb
         if wandb:
+            
+            import wandb
+
             wandb.init(project="drr", 
             config={'users_num':users_num,
             'items_num' : items_num,
