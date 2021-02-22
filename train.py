@@ -13,7 +13,7 @@ import os
 ROOT_DIR = os.getcwd()
 DATA_DIR = os.path.join(ROOT_DIR, 'ml-1m/')
 STATE_SIZE = 10
-MAX_EPISODE_NUM = 1000000
+MAX_EPISODE_NUM = 5000
 
 # os.environ["CUDA_VISIBLE_DEVICES"]="1"
 
@@ -43,12 +43,16 @@ if __name__ == "__main__":
     ratings_df = ratings_df.sort_values(by='Timestamp', ascending=True)
 
     # 유저 딕셔너리에 (영화, 평점)쌍 넣기
+    # 각 유저별 영화 히스토리 길이를 평점 4이상인 영화만 카운트
     ratings_df_gen = ratings_df.iterrows()
+    users_dict_for_history_len = {user : [] for user in set(ratings_df["UserID"])}
     for data in ratings_df_gen:
         users_dict[data[1]['UserID']].append((data[1]['MovieID'], data[1]['Rating']))
+        if data[1]['Rating'] >= 4:
+            users_dict_for_history_len[data[1]['UserID']].append((data[1]['MovieID'], data[1]['Rating']))
 
     # 각 유저별 영화 히스토리 길이
-    users_history_lens = [len(users_dict[u]) for u in set(ratings_df["UserID"])]
+    users_history_lens = [len(users_dict_for_history_len[u]) for u in set(ratings_df["UserID"])]
 
     users_num = max(ratings_df["UserID"])+1
     items_num = max(ratings_df["MovieID"])+1
@@ -62,8 +66,8 @@ if __name__ == "__main__":
     print('DONE!')
     time.sleep(2)
 
-    env = OfflineEnv(train_users_dict, train_users_history_lens, movies_id_to_movies, STATE_SIZE, fix_user_id=None)
-    recommender = DRRAgent(env, users_num, items_num, STATE_SIZE)
+    env = OfflineEnv(train_users_dict, train_users_history_lens, movies_id_to_movies, STATE_SIZE, fix_user_id=1)
+    recommender = DRRAgent(env, users_num, items_num, STATE_SIZE, use_wandb=True)
     recommender.actor.build_networks()
     recommender.critic.build_networks()
-    recommender.train(MAX_EPISODE_NUM, load_model=False, use_wandb=True)
+    recommender.train(MAX_EPISODE_NUM, load_model=False)

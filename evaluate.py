@@ -17,7 +17,7 @@ STATE_SIZE = 10
 
 def evaluate(recommender, env, top_k=False):
 
-        recommender.load_model('/home/diominor/Workspace/DRR/save_weights/actor_50000.h5', '/home/diominor/Workspace/DRR/save_weights/critic_50000.h5')
+        recommender.load_model('/home/diominor/Workspace/DRR/save_weights/actor_2000.h5', '/home/diominor/Workspace/DRR/save_weights/critic_2000.h5')
 
         # episodic reward 리셋
         episode_reward = 0

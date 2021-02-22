@@ -37,8 +37,8 @@ class DRRAgent:
         # wandb
         self.use_wandb = use_wandb
         if use_wandb:
-
             wandb.init(project="drr", 
+            entity="diominor",
             config={'users_num':users_num,
             'items_num' : items_num,
             'state_size' : state_size,
@@ -64,7 +64,7 @@ class DRRAgent:
         self.critic.update_target_network()
 
         if load_model:
-            self.load_model("/home/ubuntu/DRR/save_weights/actor_50000.h5", "/home/ubuntu/DRR/save_weights/critic_50000.h5")
+            self.load_model("/home/diominor/Workspace/DRR/save_weights/actor_50000.h5", "/home/diominor/Workspace/DRR/save_weights/critic_50000.h5")
             print('Completely load weights!')
 
         episodic_precision_history = []
@@ -130,17 +130,17 @@ class DRRAgent:
                 if done:
                     print()
                     precision = int(correct_count/steps * 100)
-                    # print(f'{episode}/{max_episode_num}, precision : {precision:2}%, total_reward:{episode_reward}')
+                    print(f'{episode}/{max_episode_num}, precision : {precision:2}%, total_reward:{episode_reward}')
                     if self.use_wandb:
                         wandb.log({'precision':precision, 'total_reward':episode_reward})
                     episodic_precision_history.append(precision)
              
             if (episode+1)%50 == 0:
                 plt.plot(episodic_precision_history)
-                plt.savefig(f'/home/ubuntu/DRR/images/training_precision_%_top_5.png')
+                plt.savefig(f'/home/diominor/Workspace/DRR/images/training_precision_%_top_5.png')
 
             if (episode+1)%1000 == 0:
-                self.save_model(f'/home/ubuntu/DRR/save_weights/actor_{episode+1}.h5', f'/home/ubuntu/DRR/save_weights/critic_{episode+1}.h5')
+                self.save_model(f'/home/diominor/Workspace/DRR/save_weights/actor_{episode+1}.h5', f'/home/diominor/Workspace/DRR/save_weights/critic_{episode+1}.h5')
 
     def save_model(self, actor_path, critic_path):
         self.actor.save_weights(actor_path)

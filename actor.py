@@ -72,7 +72,7 @@ class Actor(object):
         self.tau = tau
         # ε-탐욕 탐색 하이퍼파라미터 ε-greedy exploration hyperparameter
         self.epsilon = 1.
-        self.epsilon_decay = (self.epsilon - 0.1)/1000000
+        self.epsilon_decay = (self.epsilon - 0.1)/100000
     
     def build_networks(self):
         # 네트워크들 빌딩 / Build networks

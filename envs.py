@@ -37,7 +37,7 @@ class OfflineEnv(object):
         
     def step(self, action, top_k=False):
 
-        reward = -1
+        reward = 0
         
         if top_k:
             correctly_recommended = []
@@ -53,7 +53,7 @@ class OfflineEnv(object):
 
         else:
             if action in self.user_items.keys() and action not in self.recommended_items:
-                reward = self.user_items[action] - 3  # reward
+                reward = self.user_items[action] -3  # reward
             if reward > 0:
                 self.items = self.items[1:] + [action]
             self.recommended_items.add(action)
