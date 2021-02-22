@@ -8,3 +8,5 @@ ml-1m/
 __pycache__/
 
 *.zip
+
+wandb/
