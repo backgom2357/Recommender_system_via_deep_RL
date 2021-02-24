@@ -20,7 +20,7 @@ class ReplayMemory(object):
 
         self.states = np.zeros((replay_memory_size, 3*embedding_dim), dtype=np.float32)
         self.actions = np.zeros((replay_memory_size, embedding_dim), dtype=np.float32)
-        self.rewards = np.zeros((replay_memory_size), dtype=np.uint32)
+        self.rewards = np.zeros((replay_memory_size), dtype=np.float32)
         self.rewards[replay_memory_size-1] = 777
         self.next_states = np.zeros((replay_memory_size, 3*embedding_dim), dtype=np.float32)
         self.dones = np.zeros(replay_memory_size, np.bool)

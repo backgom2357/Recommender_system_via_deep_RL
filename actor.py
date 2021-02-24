@@ -45,8 +45,8 @@ class Actor(object):
     def train(self, states, dq_das):
         with tf.GradientTape() as g:
             outputs = self.network(states)
-            loss = outputs*dq_das
-        dj_dtheta = g.gradient(loss, self.network.trainable_weights)
+            # loss = outputs*dq_das
+        dj_dtheta = g.gradient(outputs, self.network.trainable_weights, -dq_das)
         grads = zip(dj_dtheta, self.network.trainable_weights)
         self.optimizer.apply_gradients(grads)
         

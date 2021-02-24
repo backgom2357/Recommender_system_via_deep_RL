@@ -37,19 +37,21 @@ class OfflineEnv(object):
         
     def step(self, action, top_k=False):
 
-        reward = 0
+        reward = -0.5
         
         if top_k:
             correctly_recommended = []
-            rewards = [-1]
+            rewards = []
             for act in action:
                 if act in self.user_items.keys() and act not in self.recommended_items:
                     correctly_recommended.append(act)
-                    rewards.append(self.user_items[act] - 3)
+                    rewards.append((self.user_items[act] - 3)/2)
+                else:
+                    rewards.append(-0.5)
                 self.recommended_items.add(act)
             if max(rewards) > 0:
                 self.items = self.items[len(correctly_recommended):] + correctly_recommended
-                reward = max(rewards)
+            reward = rewards
 
         else:
             if action in self.user_items.keys() and action not in self.recommended_items:
@@ -58,7 +60,7 @@ class OfflineEnv(object):
                 self.items = self.items[1:] + [action]
             self.recommended_items.add(action)
 
-        if len(self.recommended_items) > self.done_count or len(self.recommended_items) >= len(self.users_dict[self.user]):
+        if len(self.recommended_items) > self.done_count or len(self.recommended_items) >= self.users_history_lens[self.user-1]:
             self.done = True
             
         return self.items, reward, self.done, self.recommended_items
