@@ -30,7 +30,7 @@ class Critic(object):
         # 옵티마이저 optimizerq
         self.optimizer = tf.keras.optimizers.Adam(learning_rate=learning_rate)
         # MSE
-        self.loss = tf.keras.losses.MeanSquaredError()
+        self.loss = tf.keras.losses.MeanSquaredError(reduction=tf.keras.losses.Reduction.NONE)
 
         # 소프트 타겟 네트워크 업데이트 하이퍼파라미터 soft target network update hyperparameter
         self.tau = tau
@@ -56,16 +56,21 @@ class Critic(object):
             outputs = self.network([actions, states])
         q_grads = g.gradient(outputs, actions)
         return q_grads
-    
-    def train(self, inputs, td_targets):
-        with tf.GradientTape() as g:
-            output = self.network(inputs)
-            loss = self.loss(td_targets, output)
-        g_omega = g.gradient(loss, self.network.trainable_weights)
-        self.optimizer.apply_gradients(zip(g_omega, self.network.trainable_weights))
 
-    def train_on_batch(self, inputs, td_targets):
-        loss = self.network.train_on_batch(inputs, td_targets)
+    def train(self, inputs, td_targets, weight_batch):
+        weight_batch = tf.convert_to_tensor(weight_batch, dtype=tf.float32)
+        with tf.GradientTape() as g:
+            outputs = self.network(inputs)
+            loss = self.loss(td_targets, outputs)
+            weighted_loss = tf.reduce_mean(loss*weight_batch)
+        dl_domega = g.gradient(weighted_loss, self.network.trainable_weights)
+        grads = zip(dl_domega, self.network.trainable_weights)
+        self.optimizer.apply_gradients(grads)
+        return weighted_loss
+
+
+    def train_on_batch(self, inputs, td_targets, weight_batch):
+        loss = self.network.train_on_batch(inputs, td_targets, sample_weight=weight_batch)
         return loss
             
     def save_weights(self, path):

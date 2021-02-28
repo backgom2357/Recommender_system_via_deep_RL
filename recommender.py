@@ -1,3 +1,4 @@
+from replay_buffer import PriorityExperienceReplay
 import tensorflow as tf
 import numpy as np
 from tensorflow.python.ops.gen_math_ops import Exp
@@ -43,12 +44,14 @@ class DRRAgent:
         self.embedding_network([np.zeros((1,)),np.zeros((1,))])
         # self.embedding_network = UserMovieEmbedding(users_num, self.embedding_dim)
         # self.embedding_network([np.zeros((1)),np.zeros((1,100))])
-        self.embedding_network.load_weights('/home/diominor/Workspace/DRR/save_weights/user_movie_at_once.h5')
+        self.embedding_network.load_weights('/home/diominor/Workspace/DRR/save_weights/user_movie_embedding_case4.h5')
 
         self.srm_ave = DRRAveStateRepresentation(self.embedding_dim)
         self.srm_ave([np.zeros((1, 100,)),np.zeros((1,state_size, 100))])
 
-        self.buffer = ReplayMemory(self.replay_memory_size, self.embedding_dim)
+        # PER
+        self.buffer = PriorityExperienceReplay(self.replay_memory_size, self.embedding_dim)
+        self.epsilon_for_priority = 1e-6
 
         # ε-탐욕 탐색 하이퍼파라미터 ε-greedy exploration hyperparameter
         self.epsilon = 1.
@@ -153,20 +156,27 @@ class DRRAgent:
                 # buffer에 저장
                 self.buffer.append(state, action, reward, next_state, done)
                 
-                if self.buffer.crt_idx > 1000 or self.buffer.is_full():
+                if self.buffer.crt_idx > 1 or self.buffer.is_full:
                     # Sample a minibatch
-                    batch_states, batch_actions, batch_rewards, batch_next_states, batch_dones = self.buffer.sample(self.batch_size)
-                    
+                    batch_states, batch_actions, batch_rewards, batch_next_states, batch_dones, weight_batch, index_batch = self.buffer.sample(self.batch_size)
+
                     # Set TD targets
                     target_next_action= self.actor.target_network(batch_next_states)
                     qs = self.critic.network([target_next_action, batch_next_states])
                     target_qs = self.critic.target_network([target_next_action, batch_next_states])
-                    min_qs = tf.raw_ops.Min(input=tf.concat([target_qs, qs], axis=1), axis=1, keep_dims=True)
+                    min_qs = tf.raw_ops.Min(input=tf.concat([target_qs, qs], axis=1), axis=1, keep_dims=True) # Double Q method
                     td_targets = self.calculate_td_target(batch_rewards, min_qs, batch_dones)
-                    
-                    # Update critic network
-                    q_loss += self.critic.train_on_batch([batch_actions, batch_states], td_targets)
+        
+                    # Update priority
+                    for (p, i) in zip(td_targets, index_batch):
+                        self.buffer.update_priority(abs(p[0]) + self.epsilon_for_priority, i)
 
+                    # print(weight_batch.shape)
+                    # print(td_targets.shape)
+                    # raise Exception
+                    # Update critic network
+                    q_loss += self.critic.train([batch_actions, batch_states], td_targets, weight_batch)
+                    
                     # Update actor network
                     s_grads = self.critic.dq_da([batch_actions, batch_states])
                     self.actor.train(batch_states, s_grads)
@@ -196,7 +206,8 @@ class DRRAgent:
                 plt.savefig(f'/home/diominor/Workspace/DRR/images/training_precision_%_top_5.png')
 
             if (episode+1)%1000 == 0:
-                self.save_model(f'/home/diominor/Workspace/DRR/save_weights/actor_{episode+1}.h5', f'/home/diominor/Workspace/DRR/save_weights/critic_{episode+1}.h5')
+                self.save_model(f'/home/diominor/Workspace/DRR/save_weights/actor_{episode+1}_fixed.h5',
+                                f'/home/diominor/Workspace/DRR/save_weights/critic_{episode+1}_fixed.h5')
 
     def save_model(self, actor_path, critic_path):
         self.actor.save_weights(actor_path)
