@@ -25,7 +25,7 @@ Trying to improve performance of RL based recommender system. The report contain
 python train.py
 ```
 ### Evalutation
-Follow [evaluation.ipynb]
+Follow [evaluation.ipynb](https://github.com/backgom2357/DRR/blob/develop/evaluation.ipynb)
 
 # requirements
 ```
