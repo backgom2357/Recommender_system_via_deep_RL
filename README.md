@@ -10,6 +10,7 @@ unzip ./ml-1m.zip
 
 # Procedure
 Trying to improve performance of RL based recommender system. The report contains the result of Using the actor network with embedding layer, reducing overestimated Q value, using several pretrained embedding and applying [PER](https://arxiv.org/abs/1511.05952).
+
 [Experiment report in korean](https://www.notion.so/DRR-8e910fc598d242968bd371b27ac20e01)
 
 # Result
