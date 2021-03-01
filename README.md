@@ -14,7 +14,8 @@ Trying to improve performance of RL based recommender system. The report contain
 
 
 # Result
-## Please check here - [Experiment Report (Korean)](https://www.notion.so/DRR-8e910fc598d242968bd371b27ac20e01)
+
+### Please check here - [Experiment Report (Korean)](https://www.notion.so/DRR-8e910fc598d242968bd371b27ac20e01)
 
 <br>
 
