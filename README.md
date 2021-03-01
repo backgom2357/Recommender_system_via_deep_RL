@@ -44,3 +44,5 @@ matplotlib==3.3.3
 https://github.com/LeejwUniverse/RL_Rainbow_Pytorch
 
 https://github.com/kyunghoon-jung/MacaronRL
+
+https://github.com/pasus/Reinforcement-Learning-Book
