@@ -9,7 +9,11 @@ unzip ./ml-1m.zip
 ```
 
 # Procedure
-Trying to improve performance of RL based recommender system. The report contains the result of Using the actor network with embedding layer, reducing overestimated Q value, using several pretrained embedding and applying [PER](https://arxiv.org/abs/1511.05952).
+- Trying to improve performance of RL based recommender system. The report contains the result of Using the actor network with embedding layer, reducing overestimated Q value, using several pretrained embedding and applying [PER](https://arxiv.org/abs/1511.05952).
+
+- Making new embedding files. Previous one contains the information for entire timelines which can mislead model.
+
+- Updating Train and Evaluation part. Currently, I didn't follow the exact same training and evaluation procedure in the paper.
 
 
 
