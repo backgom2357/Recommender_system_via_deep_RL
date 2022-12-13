@@ -27,15 +27,17 @@ Trying to improve performance of RL based recommender system. The report contain
 
 # Usage
 ### Training
+- The saved model of actor and critic are generated after the training is done.
 ```
 python train.py
 ```
 ### Evalutation
-Follow [evaluation.ipynb](https://github.com/backgom2357/DRR/blob/develop/evaluation.ipynb)
+- Make sure there exist the saved models in the right directory
+- Run jupyter notebook and check "evaluation.ipynb"
 
 # requirements
 ```
-tensorflow==2.2.0
+tensorflow==2.5.0
 scikit-learn==0.23.2
 matplotlib==3.3.3
 ```

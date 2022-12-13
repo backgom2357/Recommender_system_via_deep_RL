@@ -8,9 +8,10 @@ from critic import Critic
 from replay_memory import ReplayMemory
 from embedding import MovieGenreEmbedding, UserMovieEmbedding
 from state_representation import DRRAveStateRepresentation
+from datetime import datetime
 
 import matplotlib.pyplot as plt
-
+import os
 import wandb
 
 class DRRAgent:
@@ -44,7 +45,12 @@ class DRRAgent:
         self.embedding_network([np.zeros((1,)),np.zeros((1,))])
         # self.embedding_network = UserMovieEmbedding(users_num, self.embedding_dim)
         # self.embedding_network([np.zeros((1)),np.zeros((1,100))])
-        self.embedding_network.load_weights('/home/diominor/Workspace/DRR/save_weights/user_movie_embedding_case4.h5')
+        self.save_model_weight_dir = f"./save_model/trail-{datetime.now().strftime('%Y-%m-%d-%H')}"
+        if not os.path.exists(self.save_model_weight_dir):
+            os.makedirs(os.path.join(self.save_model_weight_dir, 'imagess'))
+        embedding_save_file_dir = './save_weights/user_movie_embedding_case4.h5'
+        assert os.path.exists(embedding_save_file_dir), f"embedding save file directory: '{embedding_save_file_dir}' is wrong."
+        self.embedding_network.load_weights(embedding_save_file_dir)
 
         self.srm_ave = DRRAveStateRepresentation(self.embedding_dim)
         self.srm_ave([np.zeros((1, 100,)),np.zeros((1,state_size, 100))])
@@ -203,11 +209,11 @@ class DRRAgent:
              
             if (episode+1)%50 == 0:
                 plt.plot(episodic_precision_history)
-                plt.savefig(f'/home/diominor/Workspace/DRR/images/training_precision_%_top_5.png')
+                plt.savefig(os.path.join(self.save_model_weight_dir, f'images/training_precision_%_top_5.png'))
 
-            if (episode+1)%1000 == 0:
-                self.save_model(f'/home/diominor/Workspace/DRR/save_weights/actor_{episode+1}_fixed.h5',
-                                f'/home/diominor/Workspace/DRR/save_weights/critic_{episode+1}_fixed.h5')
+            if (episode+1)%1000 == 0 or episode == max_episode_num-1:
+                self.save_model(os.path.join(self.save_model_weight_dir, f'actor_{episode+1}_fixed.h5'),
+                                os.path.join(self.save_model_weight_dir, f'critic_{episode+1}_fixed.h5'))
 
     def save_model(self, actor_path, critic_path):
         self.actor.save_weights(actor_path)

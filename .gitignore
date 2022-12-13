@@ -20,3 +20,5 @@ save_weights/rating_label_embedding/
 save_weights/reward_n/
 
 save_weights/tanh_reward_n/
+
+save_model/

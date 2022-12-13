@@ -11,9 +11,9 @@ from recommender import DRRAgent
 
 import os
 ROOT_DIR = os.getcwd()
-DATA_DIR = os.path.join(ROOT_DIR, 'ml-1m/')
+DATA_DIR = os.path.join(ROOT_DIR, 'ml-1m/ml-1m')
 STATE_SIZE = 10
-MAX_EPISODE_NUM = 8000
+MAX_EPISODE_NUM = 10
 
 # os.environ["CUDA_VISIBLE_DEVICES"]="1"
 
@@ -37,10 +37,10 @@ if __name__ == "__main__":
     ratings_df = ratings_df.applymap(int)
 
     # 유저별로 본 영화들 순서대로 정리
-    users_dict = np.load('/home/diominor/Workspace/DRR/data/user_dict.npy', allow_pickle=True)
+    users_dict = np.load('./data/user_dict.npy', allow_pickle=True)
 
     # 각 유저별 영화 히스토리 길이
-    users_history_lens = np.load('/home/diominor/Workspace/DRR/data/users_histroy_len.npy')
+    users_history_lens = np.load('./data/users_histroy_len.npy')
 
     users_num = max(ratings_df["UserID"])+1
     items_num = max(ratings_df["MovieID"])+1
